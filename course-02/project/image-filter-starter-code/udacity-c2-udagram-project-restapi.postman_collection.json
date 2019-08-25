@@ -1,0 +1,161 @@
+{
+	"info": {
+		"_postman_id": "8f049cd8-9993-49a0-b7b1-a758096f7d6a",
+		"name": "udacity-c2-udagram-project-restapi",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "default_page",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "3869a711-7305-481f-8743-4772558d05fc",
+						"exec": [
+							"pm.test(\"Status code is 200\", function () {",
+							"    pm.response.to.have.status(200);",
+							"});",
+							"",
+							"pm.test(\"Response time is less than 600ms\", function () {",
+							"    pm.expect(pm.response.responseTime).to.be.below(600);",
+							"});",
+							"",
+							"pm.test(\"Body is correct\", function () {",
+							"    pm.response.to.have.body(\"try GET /filteredimage?image_url={{}}\");",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{host}}/",
+					"host": [
+						"{{host}}"
+					],
+					"path": [
+						""
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "/filteredimage",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "489f9f35-7f72-431c-9f56-d645fcc61ab9",
+						"exec": [
+							"pm.test(\"Status code is 200\", function () {",
+							"    pm.response.to.have.status(200);",
+							"});",
+							"",
+							"pm.test(\"Response time is less than 600ms\", function () {",
+							"    pm.expect(pm.response.responseTime).to.be.below(600);",
+							"});",
+							"",
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{host}}/filteredimage?image_url=https://cdn.animenewsnetwork.com/thumbnails/max500x600/encyc/A15843-1460376551.1406470005.jpg",
+					"host": [
+						"{{host}}"
+					],
+					"path": [
+						"filteredimage"
+					],
+					"query": [
+						{
+							"key": "image_url",
+							"value": "https://cdn.animenewsnetwork.com/thumbnails/max500x600/encyc/A15843-1460376551.1406470005.jpg"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "/filteredimage Missing image_url",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "7194911f-4f11-41bd-8b29-4dc27ab9f68e",
+						"exec": [
+							"pm.test(\"Status code is 400\", function () {",
+							"    pm.response.to.have.status(400);",
+							"});",
+							"",
+							"pm.test(\"Error message is about Image URL being required\", function () {",
+							"    var jsonData = pm.response.json();",
+							"    pm.expect(jsonData.message).to.eql(\"Image URL is required\");",
+							"});",
+							"",
+							"pm.test(\"Response time is less than 600ms\", function () {",
+							"    pm.expect(pm.response.responseTime).to.be.below(600);",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{host}}/filteredimage?",
+					"host": [
+						"{{host}}"
+					],
+					"path": [
+						"filteredimage"
+					]
+				}
+			},
+			"response": []
+		}
+	],
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"id": "701466b4-1da8-4505-86df-88164a5a24d1",
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"id": "8ca094fb-eb24-4f30-a4cb-a8b3b231a444",
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"id": "6300114d-0db9-4435-b5b1-f21e4e3111e8",
+			"key": "host",
+			"value": "http://localhost:8082",
+			"type": "string"
+		}
+	]
+}
