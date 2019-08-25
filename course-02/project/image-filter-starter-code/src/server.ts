@@ -28,7 +28,33 @@ import {filterImageFromURL, deleteLocalFiles} from './util/util';
   //   the filtered image file [!!TIP res.sendFile(filteredpath); might be useful]
 
   /**************************************************************************** */
+  app.get('/filteredimage/', 
+    async (req: Request, res: Response) => {
+	let { image_url } = req.query;
+	
+	if (!image_url){
+		return res.status(400).send({message: 'Image URL is required' });
+	}
+	// Write to console the URL received
+	console.log(`Image URL: ${image_url}`);
+	
+	let filteredpath = await filterImageFromURL(image_url);
+	
+	//Write to console the local path to the image
+	console.log(`Path to downloaded image: ${filteredpath}`);
+	
+	
+	res.status(200).sendFile(filteredpath);
+	//Runs after file is downloaded to delete the local file
+	res.on('finish', function() {
+		deleteLocalFiles([filteredpath]);
+		console.log("Deleted local file");
+	});
 
+//	wait(10000);
+// 	deleteLocalFiles([filteredpath]);
+	
+  });
   //! END @TODO1
   
   // Root Endpoint
@@ -44,3 +70,11 @@ import {filterImageFromURL, deleteLocalFiles} from './util/util';
       console.log( `press CTRL+C to stop server` );
   } );
 })();
+
+function wait(ms){
+   var start = new Date().getTime();
+   var end = start;
+   while(end < start + ms) {
+     end = new Date().getTime();
+  }
+}
