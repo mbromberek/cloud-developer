@@ -1,4 +1,5 @@
 import express from 'express';
+import { Router, Request, Response } from 'express';
 import bodyParser from 'body-parser';
 import {filterImageFromURL, deleteLocalFiles} from './util/util';
 
@@ -13,7 +14,6 @@ import {filterImageFromURL, deleteLocalFiles} from './util/util';
   // Use the body parser middleware for post requests
   app.use(bodyParser.json());
 
-  // @TODO1 IMPLEMENT A RESTFUL ENDPOINT
   // GET /filteredimage?image_url={{URL}}
   // endpoint to filter an image from a public url.
   // IT SHOULD
@@ -50,12 +50,7 @@ import {filterImageFromURL, deleteLocalFiles} from './util/util';
 		deleteLocalFiles([filteredpath]);
 		console.log("Deleted local file");
 	});
-
-//	wait(10000);
-// 	deleteLocalFiles([filteredpath]);
-	
   });
-  //! END @TODO1
   
   // Root Endpoint
   // Displays a simple message to the user
@@ -71,10 +66,3 @@ import {filterImageFromURL, deleteLocalFiles} from './util/util';
   } );
 })();
 
-function wait(ms){
-   var start = new Date().getTime();
-   var end = start;
-   while(end < start + ms) {
-     end = new Date().getTime();
-  }
-}
