@@ -13,7 +13,7 @@ export const handler: APIGatewayProxyHandler = async (event: APIGatewayProxyEven
     TableName: groupsTable
   }).promise()
 
-  const items = result.Items
+  const groupItems = result.Items
 
   return {
     statusCode: 200,
@@ -21,7 +21,7 @@ export const handler: APIGatewayProxyHandler = async (event: APIGatewayProxyEven
       'Access-Control-Allow-Origin': '*'
     },
     body: JSON.stringify({
-      items
+      items: groupItems
     })
   }
 }

@@ -96,6 +96,15 @@ functions:
             requestModels:
               'application/json': ImageRequest
 
+  GetImage:
+    handler: src/lambda/http/getImage.handler
+    events:
+      - http:
+          method: get
+          path: images/{imageId}
+          cors: true
+
+
 resources:
   Resources:
     GroupsDynamoDBTable:

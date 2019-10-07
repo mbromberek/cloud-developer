@@ -11,10 +11,10 @@ provider:
   runtime: nodejs8.10
 
   stage: ${opt:stage, 'dev'}
-  region: ${opt:region, 'us-east-1'}
+  region: ${opt:region, 'us-east-2'}
 
   environment:
-    GROUPS_TABLE: Groups-${self:provider.stage}
+    GROUPS_TABLE: Groups-${self:provider.stage} # uses the name from stage we specified above in provider
     IMAGES_TABLE: Images-${self:provider.stage}
     IMAGE_ID_INDEX: ImageIdIndex
 
@@ -80,6 +80,14 @@ functions:
 
   CreateImage:
     handler: src/lambda/http/createImage.handler
+
+  GetImage:
+    handler: src/lambda/http/getImage.handler
+    events:
+      - http:
+          method: get
+          path: images/{imageId}
+          cors: true
 
 resources:
   Resources:

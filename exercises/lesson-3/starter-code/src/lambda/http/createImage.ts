@@ -5,7 +5,7 @@ import * as AWS  from 'aws-sdk'
 const docClient = new AWS.DynamoDB.DocumentClient()
 
 const groupsTable = process.env.GROUPS_TABLE
-const imagesTable = process.env.IMAGES_TABLE
+// const imagesTable = process.env.IMAGES_TABLE
 
 export const handler: APIGatewayProxyHandler = async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
   console.log('Caller event', event)
