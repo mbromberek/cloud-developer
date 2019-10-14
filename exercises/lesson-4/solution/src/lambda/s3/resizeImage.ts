@@ -31,7 +31,7 @@ async function processImage(record: S3EventRecord) {
     })
     .promise()
 
-  const body = response.Body
+  const body: Buffer = response.Body
   const image = await Jimp.read(body)
 
   console.log('Resizing image')

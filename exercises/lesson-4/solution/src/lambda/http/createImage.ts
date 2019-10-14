@@ -62,6 +62,7 @@ async function groupExists(groupId: string) {
 }
 
 async function createImage(groupId: string, imageId: string, event: any) {
+  console.log('createImage: imageID: ', imageId)
   const timestamp = new Date().toISOString()
   const newImage = JSON.parse(event.body)
 
@@ -85,9 +86,10 @@ async function createImage(groupId: string, imageId: string, event: any) {
 }
 
 function getUploadUrl(imageId: string) {
+  console.log('SIGNED_URL_EXPIRATION', urlExpiration)
   return s3.getSignedUrl('putObject', {
     Bucket: bucketName,
     Key: imageId,
-    Expires: urlExpiration
+    Expires: parseInt(urlExpiration,10)
   })
 }
