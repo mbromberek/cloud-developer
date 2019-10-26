@@ -9,11 +9,7 @@ plugins:
   - serverless-iam-roles-per-function
   - serverless-dynamodb-local
   - serverless-offline
-
-# Uncomment to enable individual packaging
-# package:
-#   individually: true
-
+  - dynamodb
 provider:
   name: aws
   runtime: nodejs8.10
