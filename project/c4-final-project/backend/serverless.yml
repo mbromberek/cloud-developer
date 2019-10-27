@@ -24,7 +24,15 @@ provider:
         - dynamodb:PutItem
         - dynamodb:GetItem
         - dynamodb:DeleteItem
+        - dynamodb:UpdateItem
+        - dynamodb:Query
       Resource: arn:aws:dynamodb:${self:provider.region}:*:table/${self:provider.environment.TODOS_TABLE}
+    - Effect: Allow
+      Action:
+        - dynamodb:Query
+        - dynamodb:UpdateItem
+      Resource: arn:aws:dynamodb:${self:provider.region}:*:table/${self:provider.environment.TODOS_TABLE}/index/${self:provider.environment.TODOS_ID_INDEX}
+
 
 custom:
   topicName: todoTopic-${self:provider.stage}
@@ -35,9 +43,12 @@ custom:
         title: ToDo API
         description: Serverless application for tracking ToDos
     models:
-      - name: TodoRequest
+      - name: TodoCreateRequest
         contentType: application/json
         schema: ${file(src/models/create-todo-request.json)}
+      - name: TodoUpdateRequest
+        contentType: application/json
+        schema: ${file(src/models/update-todo-request.json)}
 
 
 functions:
@@ -45,7 +56,6 @@ functions:
 #  Auth:
 #    handler: src/lambda/auth/auth0Authorizer.handler
 
-  # TODO: Configure this function
   GetTodos:
     handler: src/lambda/http/getTodos.handler
     events:
@@ -54,8 +64,6 @@ functions:
           path: todos
           cors: true
 
-  # TODO: Configure this function
-#  GetTodos:
   CreateTodo:
     handler: src/lambda/http/createTodo.handler
     events:
@@ -68,15 +76,22 @@ functions:
             summary: Create a new To Do
             description: Create a new To Do
             requestModels: 
-              'application/json': TodoRequest
+              'application/json': TodoCreateRequest
 
   # TODO: Configure this function
-#  UpdateTodo:
-#    handler: src/lambda/http/updateTodo.handler
-#    events:
-#      - http:
-#          method: patch
-#          path: todos/{todoId}
+  UpdateTodo:
+    handler: src/lambda/http/updateTodo.handler
+    events:
+      - http:
+         method: put
+         path: todos/{todoId}
+         cors: true
+         reqValidatorName: RequestBodyValidator
+         documentation: 
+           summary: Update a To Do
+           description: Update a To Do
+           requestModels: 
+             'application/json': TodoUpdateRequest
 
   # TODO: Configure this function
 #  DeleteTodo:
@@ -114,26 +129,11 @@ resources:
         AttributeDefinitions:
           - AttributeName: todoId
             AttributeType: S
-          - AttributeName: dueDate
-            AttributeType: S
-          - AttributeName: userId
-            AttributeType: S
         KeySchema:
           - AttributeName: todoId
             KeyType: HASH
-          - AttributeName: dueDate
-            KeyType: RANGE
         BillingMode: PAY_PER_REQUEST
         TableName: ${self:provider.environment.TODOS_TABLE}
-        LocalSecondaryIndexes:
-          - IndexName: ${self:provider.environment.TODOS_ID_INDEX}
-            KeySchema:
-              - AttributeName: todoId
-                KeyType: HASH
-              - AttributeName: userId
-                KeyType: RANGE
-            Projection:
-              ProjectionType: ALL # What attributes will be copied to an index
 
     RequestBodyValidator:
       Type: AWS::ApiGateway::RequestValidator
