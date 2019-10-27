@@ -78,7 +78,6 @@ functions:
             requestModels: 
               'application/json': TodoCreateRequest
 
-  # TODO: Configure this function
   UpdateTodo:
     handler: src/lambda/http/updateTodo.handler
     events:
@@ -94,12 +93,16 @@ functions:
              'application/json': TodoUpdateRequest
 
   # TODO: Configure this function
-#  DeleteTodo:
-#    handler: src/lambda/http/deleteTodo.handler
-#    events:
-#      - http:
-#          method: delete
-#          path: todos/{todoId}
+  DeleteTodo:
+    handler: src/lambda/http/deleteTodo.handler
+    events:
+      - http:
+         method: delete
+         path: todos/{todoId}
+         cors: true
+         documentation: 
+           summary: Delete a To Do
+           description: Delete a To Do
 
   # TODO: Configure this function
 #  GenerateUploadUrl:
