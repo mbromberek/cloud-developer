@@ -11,33 +11,29 @@ const todosTable = process.env.TODOS_TABLE
 const logger = createLogger('updateToDo')
 
 export const handler: APIGatewayProxyHandler = async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
+  //Get ToDo ID from URL path
   const todoId = event.pathParameters.todoId
-  logger.info('handler', todoId)
+  logger.info('URL Parameters', {'todo': todoId)
+  //Get Update details from Body
   const updatedTodo: UpdateTodoRequest = JSON.parse(event.body)
-  logger.info('handler', updatedTodo)
+  logger.info('eventBody', updatedTodo)
 
-  // Check if passed ID exists
-  const result = await docClient.query({
-      TableName : todosTable,
-//       IndexName : todosIdIndex,
-      KeyConditionExpression: 'todoId = :todoId',
-      ExpressionAttributeValues: {
-          ':todoId': todoId
-      }
-  }).promise()
+  const validTodoId = await todoExists(todoId)
+  console.log(validTodoId)
+  logger.info('validTodoId', {'validTodoId': validTodoId})
   
   //If no records returned, return a 404 not found error
-  if (result.Count == 0){
+  if (!validTodoId){
     return {
       statusCode: 404,
       headers: {
         'Access-Control-Allow-Origin': '*'
       },
-      body: ''
+      body: 'Todo does not exist'
     }
-  
   }
   
+  //Perform update
   await docClient.update({
       TableName: todosTable,
       Key:{
@@ -63,4 +59,22 @@ export const handler: APIGatewayProxyHandler = async (event: APIGatewayProxyEven
     },
     body: ''
   }
+}
+
+/*
+  Check if Todo exists 
+  Returns: True if Todo ID exists in database
+           False if Todo ID is not found in database
+*/
+async function todoExists (todoId: string){
+  // Check if passed ID exists
+  const result = await docClient.query({
+      TableName : todosTable,
+      KeyConditionExpression: 'todoId = :todoId',
+      ExpressionAttributeValues: {
+          ':todoId': todoId
+      }
+  }).promise()
+  
+  return (result.Count >0)
 }
