@@ -2,6 +2,7 @@ import 'source-map-support/register'
 
 import { APIGatewayProxyEvent, APIGatewayProxyHandler, APIGatewayProxyResult } from 'aws-lambda'
 import * as AWS  from 'aws-sdk'
+import { todoExists } from '../utils'
 import { UpdateTodoRequest } from '../../requests/UpdateTodoRequest'
 import { createLogger } from '../../utils/logger'
 
@@ -13,13 +14,12 @@ const logger = createLogger('updateToDo')
 export const handler: APIGatewayProxyHandler = async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
   //Get ToDo ID from URL path
   const todoId = event.pathParameters.todoId
-  logger.info('URL Parameters', {'todo': todoId)
+  logger.info('URL Parameters', {'todo': todoId})
   //Get Update details from Body
   const updatedTodo: UpdateTodoRequest = JSON.parse(event.body)
   logger.info('eventBody', updatedTodo)
 
   const validTodoId = await todoExists(todoId)
-  console.log(validTodoId)
   logger.info('validTodoId', {'validTodoId': validTodoId})
   
   //If no records returned, return a 404 not found error
@@ -61,20 +61,3 @@ export const handler: APIGatewayProxyHandler = async (event: APIGatewayProxyEven
   }
 }
 
-/*
-  Check if Todo exists 
-  Returns: True if Todo ID exists in database
-           False if Todo ID is not found in database
-*/
-async function todoExists (todoId: string){
-  // Check if passed ID exists
-  const result = await docClient.query({
-      TableName : todosTable,
-      KeyConditionExpression: 'todoId = :todoId',
-      ExpressionAttributeValues: {
-          ':todoId': todoId
-      }
-  }).promise()
-  
-  return (result.Count >0)
-}
