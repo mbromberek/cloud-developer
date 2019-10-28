@@ -17,6 +17,8 @@ provider:
     TODOS_ID_INDEX: TodoIdIndex
     IMAGES_S3_BUCKET: serverless-todo-images-bromberek-${self:provider.stage}
     SIGNED_URL_EXPIRATION: 300
+    AUTH_0_SECRET_ID: Auth0Secret-${self:provider.stage}
+    AUTH_0_SECRET_FIELD: auth0Secret
 
 
   iamRoleStatements:
@@ -60,8 +62,8 @@ custom:
 
 functions:
 
-#  Auth:
-#    handler: src/lambda/auth/auth0Authorizer.handler
+  Auth:
+    handler: src/lambda/auth/auth0Authorizer.handler
 
   GetTodos:
     handler: src/lambda/http/getTodos.handler
@@ -89,7 +91,7 @@ functions:
     handler: src/lambda/http/updateTodo.handler
     events:
       - http:
-         method: put
+         method: patch
          path: todos/{todoId}
          cors: true
          reqValidatorName: RequestBodyValidator
@@ -110,13 +112,13 @@ functions:
            summary: Delete a To Do
            description: Delete a To Do
 
-  # TODO: Configure this function
   GenerateUploadUrl:
     handler: src/lambda/http/generateUploadUrl.handler
     events:
       - http:
          method: post
          path: todos/{todoId}/attachment
+         cors: true
          documentation: 
            summary: Upload Attachment
            description: Upload Attachment after Todo was created or updated

@@ -23,6 +23,7 @@ export const handler: APIGatewayProxyHandler = async (event: APIGatewayProxyEven
   const validTodoId = await todoExists(todoId)  
   //If no records returned, return a 404 not found error
   if (!validTodoId){
+    logger.info('invalid todoId', {'todo': todoId})
     return {
       statusCode: 404,
       headers: {
@@ -48,8 +49,13 @@ export const handler: APIGatewayProxyHandler = async (event: APIGatewayProxyEven
       ReturnValues: "UPDATED_NEW"
   }).promise()
 
+  logger.info('uploadURL', {'url': url})
   return {
-    statusCode: 201,
+    statusCode: 200,
+    headers: {
+      'Access-Control-Allow-Origin': '*',
+      'Access-Control-Allow-Credentials': true
+    },
     body: JSON.stringify({
       uploadUrl: url
     })
