@@ -21,7 +21,7 @@ export const handler: APIGatewayProxyHandler = async (event: APIGatewayProxyEven
   const newTodo: CreateTodoRequest = JSON.parse(event.body)
   logger.info('CreateToDo', newTodo)
   
-  const newTodoItem: TodoItem = {
+  const item: TodoItem = {
     todoId: newTodoId,
     userId: 'default',
     createdAt: new Date().toLocaleDateString(),
@@ -29,11 +29,11 @@ export const handler: APIGatewayProxyHandler = async (event: APIGatewayProxyEven
     ...newTodo
   }
     
-  logger.info('CreateToDo details', newTodoItem)
+  logger.info('CreateToDo details', item)
   
   await docClient.put({
     TableName: todosTable,
-    Item: newTodoItem
+    Item: item
   }).promise()
 
   
@@ -44,7 +44,7 @@ export const handler: APIGatewayProxyHandler = async (event: APIGatewayProxyEven
       'Access-Control-Allow-Credentials': true
     },
     body: JSON.stringify({
-      newTodoItem
+      item
     })
   }
 
