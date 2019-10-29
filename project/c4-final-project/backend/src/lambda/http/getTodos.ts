@@ -12,6 +12,8 @@ const todosTable = process.env.TODOS_TABLE
 
 export const handler: APIGatewayProxyHandler = async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
   logger.info('handler', event)
+  
+  
 
   const result = await docClient.scan({
     TableName: todosTable
@@ -22,7 +24,8 @@ export const handler: APIGatewayProxyHandler = async (event: APIGatewayProxyEven
   return {
     statusCode: 200,
     headers: {
-      'Access-Control-Allow-Origin': '*'
+      'Access-Control-Allow-Origin': '*',
+      'Access-Control-Allow-Credentials': true
     },
     body: JSON.stringify({
       items
