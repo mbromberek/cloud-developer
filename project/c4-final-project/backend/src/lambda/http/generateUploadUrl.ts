@@ -2,17 +2,16 @@ import 'source-map-support/register'
 
 import { APIGatewayProxyEvent, APIGatewayProxyResult, APIGatewayProxyHandler } from 'aws-lambda'
 import * as AWS  from 'aws-sdk'
-import { todoExists } from '../utils'
+import { TodoAccess } from '../../dataLayer/todoAccess'
 import { createLogger } from '../../utils/logger'
 const logger = createLogger('generateUploadUrl')
 
-const docClient = new AWS.DynamoDB.DocumentClient()
 const s3 = new AWS.S3({
   signatureVersion: 'v4' //Use Sigv4 algorithm
 })
-const todosTable = process.env.TODOS_TABLE
 const bucketName = process.env.IMAGES_S3_BUCKET
 const urlExpiration = process.env.SIGNED_URL_EXPIRATION
+const todoAccess = new TodoAccess()
 
 
 export const handler: APIGatewayProxyHandler = async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
@@ -20,7 +19,7 @@ export const handler: APIGatewayProxyHandler = async (event: APIGatewayProxyEven
   const todoId = event.pathParameters.todoId
   logger.info('URL Parameters', {'todo': todoId})
   
-  const validTodoId = await todoExists(todoId)  
+  const validTodoId = await todoAccess.todoExists(todoId)
   //If no records returned, return a 404 not found error
   if (!validTodoId){
     logger.info('invalid todoId', {'todo': todoId})
@@ -38,17 +37,7 @@ export const handler: APIGatewayProxyHandler = async (event: APIGatewayProxyEven
   const url = getUploadUrl(todoId)
   
   //Perform update
-  await docClient.update({
-      TableName: todosTable,
-      Key:{
-        "todoId": todoId
-      },
-      UpdateExpression: "set attachmentUrl = :attachmentUrl",
-      ExpressionAttributeValues: {
-          ":attachmentUrl": attachmentUrl
-      },
-      ReturnValues: "UPDATED_NEW"
-  }).promise()
+  await todoAccess.addAttachmentUrl(todoId, attachmentUrl)
 
   logger.info('uploadURL', {'url': url})
   return {

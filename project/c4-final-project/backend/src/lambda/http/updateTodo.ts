@@ -2,14 +2,13 @@ import 'source-map-support/register'
 
 import { APIGatewayProxyEvent, APIGatewayProxyHandler, APIGatewayProxyResult } from 'aws-lambda'
 import * as AWS  from 'aws-sdk'
-import { todoExists } from '../utils'
+import { TodoAccess } from '../../dataLayer/todoAccess'
 import { UpdateTodoRequest } from '../../requests/UpdateTodoRequest'
 import { createLogger } from '../../utils/logger'
 
-const docClient = new AWS.DynamoDB.DocumentClient()
-const todosTable = process.env.TODOS_TABLE
-
 const logger = createLogger('updateToDo')
+
+const todoAccess = new TodoAccess()
 
 export const handler: APIGatewayProxyHandler = async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
   //Get ToDo ID from URL path
@@ -19,7 +18,7 @@ export const handler: APIGatewayProxyHandler = async (event: APIGatewayProxyEven
   const updatedTodo: UpdateTodoRequest = JSON.parse(event.body)
   logger.info('eventBody', updatedTodo)
 
-  const validTodoId = await todoExists(todoId)
+  const validTodoId = await todoAccess.todoExists(todoId)
   logger.info('validTodoId', {'validTodoId': validTodoId})
   
   //If no records returned, return a 404 not found error
@@ -35,23 +34,7 @@ export const handler: APIGatewayProxyHandler = async (event: APIGatewayProxyEven
   }
   
   //Perform update
-  await docClient.update({
-      TableName: todosTable,
-      Key:{
-        "todoId": todoId
-      },
-      UpdateExpression: "set #nm = :todoName, dueDate = :dueDate, done = :done",
-      ExpressionAttributeValues: {
-          ":todoName": updatedTodo.name,
-          ':dueDate': updatedTodo.dueDate,
-          ":done": updatedTodo.done   
-      },
-      ExpressionAttributeNames: {
-    //Using expression for name field since name is reserved word for DynamoDB on Updates
-        "#nm": "name"
-      },
-      ReturnValues: "UPDATED_NEW"
-  }).promise()
+  const item = await todoAccess.updateTodo(todoId, updatedTodo)
 
   return {
     statusCode: 200,

@@ -11,7 +11,6 @@ export async function createTodo(
   newTodo: CreateTodoRequest,
   authorization: string
 ): Promise<TodoItem> {
-
   const logger = createLogger('createToDo')
   
   //Get Unique ID for new To Do
@@ -41,7 +40,22 @@ export async function createTodo(
 
 }
 
+export async function getAllTodosLogic(
+  authorization: string
+): Promise<TodoItem[]>{
+  const logger = createLogger('getTodos')
+  
+  var userId = 'default'  
+  const split = authorization.split(' ')
+  if (split.length > 1){
+    const jwtToken = split[1]
+    userId = parseUserId(jwtToken)
+  }
+  logger.info('getAllTodosLogic', {'userId': userId})
 
-//   const newTodo: CreateTodoRequest = JSON.parse(event.body)
-//   const authorization = event.headers.Authorization
-//   const item = await createTodo(newTodo, authorization)
+   const items = await todoAccess.getAllTodos(userId)
+   logger.info('getAllTodosLogic', {'items': items})
+   
+   return items
+
+}
