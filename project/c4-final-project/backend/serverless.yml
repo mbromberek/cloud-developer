@@ -6,12 +6,17 @@ plugins:
   - serverless-iam-roles-per-function
 
 provider:
+
   name: aws
   runtime: nodejs8.10
 
   stage: ${opt:stage, 'dev'}
   region: ${opt:region, 'us-east-2'}
   
+  tracing:
+    lambda: true
+    apiGateway: true
+
   environment:
     TODOS_TABLE: Todos-${self:provider.stage}
     TODOS_ID_INDEX: TodoIdIndex
@@ -56,26 +61,36 @@ functions:
         Action:
           - dynamodb:Query
         Resource: arn:aws:dynamodb:${self:provider.region}:*:table/${self:provider.environment.TODOS_TABLE}/index/${self:provider.environment.TODOS_USR_INDX}
+      - Effect: Allow
+        Action:
+          - xray:PutTraceSegments
+          - xray:PutTelemetryRecords
+        Resource: '*'
 
 
   CreateTodo:
     handler: src/lambda/http/createTodo.handler
     events:
       - http:
-          method: post
-          path: todos
-          cors: true
-          reqValidatorName: RequestBodyValidator
-          documentation: 
-            summary: Create a new To Do
-            description: Create a new To Do
-            requestModels: 
-              'application/json': TodoCreateRequest
+         method: post
+         path: todos
+         cors: true
+         reqValidatorName: RequestBodyValidator
+         documentation: 
+           summary: Create a new To Do
+           description: Create a new To Do
+           requestModels: 
+             'application/json': TodoCreateRequest
     iamRoleStatements:
       - Effect: Allow
         Action:
           - dynamodb:PutItem
         Resource: arn:aws:dynamodb:${self:provider.region}:*:table/${self:provider.environment.TODOS_TABLE}
+      - Effect: Allow
+        Action:
+          - xray:PutTraceSegments
+          - xray:PutTelemetryRecords
+        Resource: '*'
 
   UpdateTodo:
     handler: src/lambda/http/updateTodo.handler
@@ -96,6 +111,11 @@ functions:
           - dynamodb:UpdateItem
           - dynamodb:Query
         Resource: arn:aws:dynamodb:${self:provider.region}:*:table/${self:provider.environment.TODOS_TABLE}
+      - Effect: Allow
+        Action:
+          - xray:PutTraceSegments
+          - xray:PutTelemetryRecords
+        Resource: '*'
 
   DeleteTodo:
     handler: src/lambda/http/deleteTodo.handler
@@ -112,7 +132,13 @@ functions:
         Action:
           - dynamodb:DeleteItem
         Resource: arn:aws:dynamodb:${self:provider.region}:*:table/${self:provider.environment.TODOS_TABLE}
-        
+      - Effect: Allow
+        Action:
+          - xray:PutTraceSegments
+          - xray:PutTelemetryRecords
+        Resource: 
+          - '*'
+                 
   GenerateUploadUrl:
     handler: src/lambda/http/generateUploadUrl.handler
     events:
@@ -133,6 +159,11 @@ functions:
         Action:
           - s3:PutObject
         Resource: arn:aws:s3:::${self:provider.environment.IMAGES_S3_BUCKET}/*
+      - Effect: Allow
+        Action:
+          - xray:PutTraceSegments
+          - xray:PutTelemetryRecords
+        Resource: '*'
 
 
 resources:

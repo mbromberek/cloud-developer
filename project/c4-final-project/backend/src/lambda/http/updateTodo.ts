@@ -1,7 +1,7 @@
 import 'source-map-support/register'
 
 import { APIGatewayProxyEvent, APIGatewayProxyHandler, APIGatewayProxyResult } from 'aws-lambda'
-import * as AWS  from 'aws-sdk'
+// import * as AWS  from 'aws-sdk'
 import { TodoAccess } from '../../dataLayer/todoAccess'
 import { UpdateTodoRequest } from '../../requests/UpdateTodoRequest'
 import { createLogger } from '../../utils/logger'
@@ -34,7 +34,7 @@ export const handler: APIGatewayProxyHandler = async (event: APIGatewayProxyEven
   }
   
   //Perform update
-  const item = await todoAccess.updateTodo(todoId, updatedTodo)
+  await todoAccess.updateTodo(todoId, updatedTodo)
 
   return {
     statusCode: 200,
